@@ -1,6 +1,22 @@
 let selectedLabels = [];
 let currentIndex = 0;
 
+function clearLabelsContainer() {
+    const container = document.getElementById('labelsContainer');
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+}
+
+function createInitialLabels() {
+    clearLabelsContainer(); // Limpiamos el contenedor antes de crear nuevas etiquetas
+    selectedLabels = []; // Limpiamos el array de etiquetas
+    
+    for(let i = 0; i < 10; i++) {
+        addLabel('', 'https://via.placeholder.com/150', '');
+    }
+}
+
 async function buscarProductos() {
     const searchInput = document.getElementById('searchInput');
     const resultsContainer = document.getElementById('results');
@@ -31,13 +47,8 @@ async function buscarProductos() {
     }
 }
 
-function createInitialLabels() {
-    for(let i = 0; i < 10; i++) {
-        addLabel('', 'https://via.placeholder.com/150', '');
-    }
-}
-
 function addLabel(productName, imgSrc, qrData) {
+    const container = document.getElementById('labelsContainer');
     const labelRow = document.createElement('div');
     labelRow.classList.add('label-row');
 
@@ -60,14 +71,15 @@ function addLabel(productName, imgSrc, qrData) {
     const qrCell = document.createElement('div');
     qrCell.classList.add('qr-cell');
     const qrImg = document.createElement('img');
-    qrImg.src = qrData;
+    qrImg.src = qrData || '';
     qrCell.appendChild(qrImg);
 
     labelRow.appendChild(productCell);
     labelRow.appendChild(nameCell);
     labelRow.appendChild(qrCell);
 
-    document.getElementById('labelsContainer').appendChild(labelRow);
+    container.appendChild(labelRow);
+    
     selectedLabels.push({
         imgElement: productImg,
         nameInput: nameTextarea,
@@ -107,26 +119,32 @@ function updateQRCode(index, text) {
     }
 }
 
+// Inicialización cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', () => {
+    // Crear etiquetas iniciales
     createInitialLabels();
 
+    // Event Listeners
     document.getElementById('searchButton').addEventListener('click', buscarProductos);
     document.getElementById('searchInput').addEventListener('keypress', e => {
         if (e.key === 'Enter') buscarProductos();
     });
 
+    // URLs para imágenes
     document.querySelectorAll('.url-input').forEach((input, index) => {
         input.addEventListener('input', (e) => {
             updateImageByUrl(index, e.target.value);
         });
     });
 
+    // Códigos QR
     document.querySelectorAll('.code-input').forEach((input, index) => {
         input.addEventListener('input', (e) => {
             updateQRCode(index, e.target.value);
         });
     });
 
+    // Botón de imprimir
     document.getElementById('printButton').addEventListener('click', () => {
         window.print();
     });
